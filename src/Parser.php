@@ -435,7 +435,7 @@ class Parser
 
         $imgAttrs = [];
         //ajout de contrôle pour éviter erreur $files
-        dump($block);
+        //dump($block);
         if ($block->data->withBorder) $imgAttrs[] = "{$this->prefix}-image-border";
         if ($block->data->withBackground) $imgAttrs[] = "{$this->prefix}-image-background";
         if ($block->data->stretched) $imgAttrs[] = "{$this->prefix}-image-stretched";
