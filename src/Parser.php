@@ -139,6 +139,8 @@ class Parser
                 case 'table':
                     $this->parseTable($block);
                     break;
+                case 'image':
+                    $this->parseFile($block);
                 default:
                     break;
             }
@@ -375,6 +377,34 @@ class Parser
         $img = $this->dom->createElement('img');
 
         $imgAttrs = [];
+        if ($block->data->withBorder) $imgAttrs[] = "{$this->prefix}-image-border";
+        if ($block->data->withBackground) $imgAttrs[] = "{$this->prefix}-image-background";
+        if ($block->data->stretched) $imgAttrs[] = "{$this->prefix}-image-stretched";
+        if (isset($block->data->middle)) if ($block->data->middle) $imgAttrs[] = "{$this->prefix}-image-middle"; // add size middle
+        $imgAttrs = array_merge($imgAttrs, $this->customImgAttrs);
+
+        $img->setAttribute('src', $block->data->url);
+        $img->setAttribute('class', implode(' ', $imgAttrs));
+
+        $figCaption = $this->dom->createElement('figcaption');
+
+        $figCaption->appendChild($this->html5->loadHTMLFragment($block->data->caption));
+
+        $figure->appendChild($img);
+
+        $figure->appendChild($figCaption);
+
+        $this->dom->appendChild($figure);
+    }
+    private function parseFile($block)
+    {
+        $figure = $this->dom->createElement('figure');
+
+        $figure->setAttribute('class', "{$this->prefix}-image");
+
+        $img = $this->dom->createElement('img');
+
+        $imgAttrs = [];
 
         if ($block->data->withBorder) $imgAttrs[] = "{$this->prefix}-image-border";
         if ($block->data->withBackground) $imgAttrs[] = "{$this->prefix}-image-background";
@@ -404,19 +434,21 @@ class Parser
         $img = $this->dom->createElement('img');
 
         $imgAttrs = [];
-
+        //ajout de contrôle pour éviter erreur $files
+        dump($block);
         if ($block->data->withBorder) $imgAttrs[] = "{$this->prefix}-image-border";
         if ($block->data->withBackground) $imgAttrs[] = "{$this->prefix}-image-background";
         if ($block->data->stretched) $imgAttrs[] = "{$this->prefix}-image-stretched";
+        if (isset($block->data->middle)) if ($block->data->middle) $imgAttrs[] = "{$this->prefix}-image-middle";
         $imgAttrs = array_merge($imgAttrs, $this->customImgAttrs);
 
-        $img->setAttribute('src', $block->data->file->url);
+        if (isset($block->data->file)) $img->setAttribute('src', $block->data->file->url);
+        if (isset($block->data->url)) $img->setAttribute('src', $block->data->url);
         $img->setAttribute('class', implode(' ', $imgAttrs));
 
         $figure->appendChild($img);
 
         if ($block->data->caption) {
-
             $figCaption = $this->dom->createElement('figcaption');
             $figCaption->appendChild($this->html5->loadHTMLFragment($block->data->caption));
             $figure->appendChild($figCaption);
